@@ -1,23 +1,23 @@
 import os
 from dotenv import load_dotenv
 from typing import Any, List, Dict
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import OpenAIEmbeddings
+from langchain_openai.chat_models.base import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
-from langchain.vectorstores import Pinecone
-import pinecone
+from langchain_community.vectorstores.pinecone import Pinecone as langchainPinecone
+from pinecone import Pinecone
 from consts import INDEX_NAME
 
 load_dotenv()
 
-pinecone.init(
-    api_key=os.environ["PINECONE_API_KEY"],
+pc = Pinecone(
+    api_key=os.environ.get("PINECONE_API_KEY"),
     environment=os.environ["PINECONE_ENVIRONMENT_REGION"],
 )
 
 def run_llm(query: str, chat_history: List[Dict[str, Any]] = []) -> Any:
     embeddings = OpenAIEmbeddings()
-    docsearch = Pinecone.from_existing_index(
+    docsearch = langchainPinecone.from_existing_index(
         index_name=INDEX_NAME, embedding=embeddings
     )
     chat = ChatOpenAI(verbose=True, temperature=0)
